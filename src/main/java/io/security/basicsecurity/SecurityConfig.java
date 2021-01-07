@@ -8,10 +8,13 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.logout.LogoutHandler;
+import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.io.IOException;
 
 @Configuration
@@ -26,7 +29,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         // 인증정책
         http
                 .formLogin()                   // form 로그인 방식
-                .loginPage("/loginPage")
+                //.loginPage("/loginPage")
                 .defaultSuccessUrl("/")
                 .failureUrl("/login")
                 .usernameParameter("userId")
@@ -47,6 +50,25 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                     }
                 })
                 .permitAll()
+        ;
+        http
+                .logout()           // 기본적(원칙)으로 post방식임
+                .logoutUrl("/logout")
+                .logoutSuccessUrl("login") // logoutSuccessHandler로 더욱 커스텀 가능
+                .addLogoutHandler(new LogoutHandler() {
+                    @Override
+                    public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
+                        HttpSession session = request.getSession();
+                        session.invalidate();
+                    }
+                })
+                .logoutSuccessHandler(new LogoutSuccessHandler() {
+                    @Override
+                    public void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
+                        response.sendRedirect("/login");
+                    }
+                })
+                .deleteCookies("remember-me")  //  로그아웃할때 쿠키 삭제됨
         ;
     }
 }
