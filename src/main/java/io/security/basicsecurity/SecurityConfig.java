@@ -1,11 +1,13 @@
 package io.security.basicsecurity;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
@@ -20,6 +22,9 @@ import java.io.IOException;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
+    @Autowired
+    UserDetailsService userDetailsService;
+
     @Override
     protected void configure(HttpSecurity http) throws Exception{
         // 인가정책
@@ -69,6 +74,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                     }
                 })
                 .deleteCookies("remember-me")  //  로그아웃할때 쿠키 삭제됨
-        ;
+        .and()
+                .rememberMe()
+                .rememberMeParameter("remember-me")         // default는 remember-me -> 커스텀 가능(체크박스와 이름 동일하게)
+                .tokenValiditySeconds(5000)                 // default는 14일, 현재 5000초 설정해놨음
+                .alwaysRemember(true)                       // default false, 기능이 활성화되지 않아도 항상 실행여부
+                .userDetailsService(userDetailsService);    // 확인해주는 클래스 넣어줌
     }
 }
