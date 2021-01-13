@@ -2,6 +2,7 @@ package io.security.basicsecurity;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -25,11 +26,30 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     UserDetailsService userDetailsService;
 
+    // 메모리에 임의 유저정보 - 테스트용
+    @Override
+    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+        auth.inMemoryAuthentication()
+                .withUser("user")
+                .password("{noop}1111")  // 패스워드 인코딩 유형 괄호에 넣음
+                .roles("USER");
+        auth.inMemoryAuthentication()
+                .withUser("sys")
+                .password("{noop}1111")
+                .roles("SYS","USER");
+        auth.inMemoryAuthentication()
+                .withUser("admin")
+                .password("{noop}1111")
+                .roles("ADMIN","SYS","USER");
+    }
     @Override
     protected void configure(HttpSecurity http) throws Exception{
         // 인가정책
         http
                 .authorizeRequests()            // 요청에 대한 보안검사
+                .antMatchers("/user").hasRole("USER")
+                .antMatchers("/admin/pay").hasRole("ADMIN") // ADMIN만 pay 접근 가능(SYS도 불가능)
+                .antMatchers("/admin/**").access("hasRole('ADMIN') or hasRole('SYS')")
                 .anyRequest().authenticated()  // 모든 요청에도 인증을 받도록함.
         // 인증정책
         .and()
