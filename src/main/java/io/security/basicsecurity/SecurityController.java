@@ -10,9 +10,9 @@ public class SecurityController {
         return "home";
     }
 
-    @GetMapping("loginPage")
-    public String loginPage() {
-        return "loginPage";
+    @GetMapping("login")
+    public String login() {
+        return "login";
     }
 
     @GetMapping("/user")
@@ -23,8 +23,14 @@ public class SecurityController {
     public String adminPay() {
         return "adminPay";
     }
+
     @GetMapping("/admin/**")
     public String admin() {
         return "admin";
+    }
+
+    @GetMapping("/denied")
+    public String denied() {
+        return "Access is denied";
     }
 }

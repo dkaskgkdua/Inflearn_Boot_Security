@@ -2,6 +2,7 @@ package io.security.basicsecurity;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -9,10 +10,15 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
+import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
+import org.springframework.security.web.savedrequest.RequestCache;
+import org.springframework.security.web.savedrequest.SavedRequest;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -47,6 +53,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         // 인가정책
         http
                 .authorizeRequests()            // 요청에 대한 보안검사
+                .antMatchers("login").permitAll()
                 .antMatchers("/user").hasRole("USER")
                 .antMatchers("/admin/pay").hasRole("ADMIN") // ADMIN만 pay 접근 가능(SYS도 불가능)
                 .antMatchers("/admin/**").access("hasRole('ADMIN') or hasRole('SYS')")
@@ -63,8 +70,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .successHandler(new AuthenticationSuccessHandler() {
                     @Override
                     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
+                        // 인증 전에 요청했던 정보를 캐시로 보관했다가 인증 성공 후 요청했던 곳으로 보냄
+                        RequestCache requestCache = new HttpSessionRequestCache();
+                        SavedRequest savedRequest = requestCache.getRequest(request, response);
+                        String redirectUrl = savedRequest.getRedirectUrl();
                         System.out.println("authentication : " + authentication.getName());
-                        response.sendRedirect("/");
+                        response.sendRedirect(redirectUrl);
                     }
                 })
                 .failureHandler(new AuthenticationFailureHandler() {
@@ -100,6 +111,24 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                  *  -> 로그인이 된다는 말임
                  */
         .and()
+                .exceptionHandling()
+//                .authenticationEntryPoint(new AuthenticationEntryPoint() {
+//                    // 인증예외 시 처리
+//                    @Override
+//                    public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
+//                        response.sendRedirect("/login");    // 세팅 시 커스텀한 login 페이지로 감
+//                    }
+//                })
+                .accessDeniedHandler(new AccessDeniedHandler() {
+                    // 인가 예외
+                    @Override
+                    public void handle(HttpServletRequest request, HttpServletResponse response, AccessDeniedException accessDeniedException) throws IOException, ServletException {
+                        response.sendRedirect("/denied");
+                    }
+                })
+
+
+        .and()
                 .rememberMe()
                 .rememberMeParameter("remember-me")         // default는 remember-me -> 커스텀 가능(체크박스와 이름 동일하게)
                 .tokenValiditySeconds(5000)                 // default는 14일, 현재 5000초 설정해놨음
@@ -110,6 +139,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .sessionFixation()          // 세션 고정 보호
                 .changeSessionId()          // 세션 고정 보호 정책
                 .maximumSessions(1)         // 최대 세션 동시접속 수
-                .maxSessionsPreventsLogin(false);  // 동시 로그인 차단함, false : 기존 세션만료(default)
+                .maxSessionsPreventsLogin(false)  // 동시 로그인 차단함, false : 기존 세션만료(default)
+
+
+
+        ;
     }
 }
