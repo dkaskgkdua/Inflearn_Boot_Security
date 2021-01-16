@@ -52,6 +52,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception{
         // 인가정책
         http
+                .csrf()
+        .and()
                 .authorizeRequests()            // 요청에 대한 보안검사
                 .antMatchers("login").permitAll()
                 .antMatchers("/user").hasRole("USER")
