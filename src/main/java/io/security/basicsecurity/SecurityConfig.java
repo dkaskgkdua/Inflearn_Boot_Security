@@ -2,6 +2,7 @@ package io.security.basicsecurity;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -26,8 +27,11 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
 
+
 @Configuration
-@EnableWebSecurity
+@Order(1)       // config 인식 순서. /admin/multi 에만 따로 config를 주고 나머지 /admin/**
+                // 에는 일괄권한을 주고싶다면 multi에 order를 먼저 주고 일괄에 후순위로 줘야함
+                // 즉 구체적인건 우선순위가 높고, 넓은 범위는 우선순위가 낮음
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     UserDetailsService userDetailsService;
@@ -146,5 +150,19 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 
         ;
+    }
+}
+
+@EnableWebSecurity
+@Order(0)
+class SecurityConfig2 extends WebSecurityConfigurerAdapter {
+    @Override
+    protected void configure(HttpSecurity http) throws Exception{
+        http
+                .antMatcher("/admin/multi")
+                .authorizeRequests()
+                .anyRequest().permitAll()
+        .and()
+                .httpBasic();
     }
 }
