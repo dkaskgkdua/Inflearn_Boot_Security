@@ -29,12 +29,12 @@ import javax.servlet.http.HttpSession;
 import java.io.IOException;
 
 
-@Configuration
-@Order(1)       // config 인식 순서. /admin/multi 에만 따로 config를 주고 나머지 /admin/**
+//@Configuration
+//@Order(1)       // config 인식 순서. /admin/multi 에만 따로 config를 주고 나머지 /admin/**
                 // 에는 일괄권한을 주고싶다면 multi에 order를 먼저 주고 일괄에 후순위로 줘야함
                 // 즉 구체적인건 우선순위가 높고, 넓은 범위는 우선순위가 낮음
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
-    @Autowired
+    //@Autowired
     UserDetailsService userDetailsService;
 
     // 메모리에 임의 유저정보 - 테스트용
@@ -157,8 +157,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     }
 }
 
-@EnableWebSecurity
-@Order(0)
+//@EnableWebSecurity
+//@Order(0)
 class SecurityConfig2 extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception{

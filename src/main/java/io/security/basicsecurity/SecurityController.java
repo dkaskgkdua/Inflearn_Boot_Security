@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpSession;
 
-@RestController
+//@RestController
 public class SecurityController {
     @GetMapping("/")
     public String index(HttpSession session) {
