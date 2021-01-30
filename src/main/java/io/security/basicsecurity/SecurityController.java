@@ -5,7 +5,6 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpSession;
 
@@ -25,6 +24,7 @@ public class SecurityController {
         Authentication authentication1 = context.getAuthentication();
         return "home";
     }
+    /*
     @GetMapping("/thread")
     public String thread() {
         new Thread(
@@ -62,5 +62,5 @@ public class SecurityController {
     @GetMapping("/denied")
     public String denied() {
         return "Access is denied";
-    }
+    }*/
 }
