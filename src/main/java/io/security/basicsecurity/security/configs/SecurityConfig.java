@@ -1,11 +1,11 @@
 package io.security.basicsecurity.security.configs;
 
-import io.security.basicsecurity.security.provider.CustomAuthenticationProvider;
+import io.security.basicsecurity.security.provider.FormAuthenticationProvider;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -17,14 +17,12 @@ import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @EnableWebSecurity
+@RequiredArgsConstructor
 @Slf4j
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final UserDetailsService userDetailsService;
-
-    public SecurityConfig(UserDetailsService userDetailsService) {
-        this.userDetailsService = userDetailsService;
-    }
+    private final AuthenticationDetailsSource authenticationDetailsSource;
 
     // webIgnore 설정 - 정적 리소스 관리 : 보안필터도 안거침(비용적인 측면에서 절약)
     @Override
@@ -40,8 +38,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     // 커스텀한 provider 빈 등록
     @Bean
     public AuthenticationProvider authenticationProvider() {
-        return new CustomAuthenticationProvider();
+        return new FormAuthenticationProvider(userDetailsService, passwordEncoder());
     }
+
     @Override
     protected void configure(HttpSecurity http) throws Exception {
        http
@@ -58,12 +57,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                .formLogin()
                .loginPage("/login")
                .loginProcessingUrl("/login_proc")
+               .authenticationDetailsSource(authenticationDetailsSource)
                .defaultSuccessUrl("/")
                .permitAll()
-       .and()
-                .logout()
-       .logoutUrl("/logout")
-       .logoutSuccessUrl("/")
 
        ;
     }

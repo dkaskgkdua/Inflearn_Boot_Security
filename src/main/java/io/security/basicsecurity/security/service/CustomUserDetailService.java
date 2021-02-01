@@ -16,7 +16,7 @@ import java.util.List;
 /**
  * userDetailsService를 커스텀함
  */
-@Service("userDetailsService")
+@Service("UserDetailsService")
 public class CustomUserDetailService implements UserDetailsService {
     @Autowired
     private UserRepository userRepository;
