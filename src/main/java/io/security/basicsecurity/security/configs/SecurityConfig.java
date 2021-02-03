@@ -3,6 +3,7 @@ package io.security.basicsecurity.security.configs;
 import io.security.basicsecurity.security.provider.FormAuthenticationProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.authentication.AuthenticationDetailsSource;
@@ -15,6 +16,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 
 @EnableWebSecurity
 @RequiredArgsConstructor
@@ -23,6 +25,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final UserDetailsService userDetailsService;
     private final AuthenticationDetailsSource authenticationDetailsSource;
+    private final AuthenticationSuccessHandler customAuthenticationSuccessHandler;
 
     // webIgnore 설정 - 정적 리소스 관리 : 보안필터도 안거침(비용적인 측면에서 절약)
     @Override
@@ -57,8 +60,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                .formLogin()
                .loginPage("/login")
                .loginProcessingUrl("/login_proc")
-               .authenticationDetailsSource(authenticationDetailsSource)
                .defaultSuccessUrl("/")
+               .authenticationDetailsSource(authenticationDetailsSource)
+               .successHandler(customAuthenticationSuccessHandler)
                .permitAll()
 
        ;
