@@ -16,6 +16,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 
 @EnableWebSecurity
@@ -26,6 +27,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private final UserDetailsService userDetailsService;
     private final AuthenticationDetailsSource authenticationDetailsSource;
     private final AuthenticationSuccessHandler customAuthenticationSuccessHandler;
+    private final AuthenticationFailureHandler customAuthenticationFailureHandler;
 
     // webIgnore 설정 - 정적 리소스 관리 : 보안필터도 안거침(비용적인 측면에서 절약)
     @Override
@@ -49,7 +51,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
        http
                .csrf().disable()
                .authorizeRequests()
-               .antMatchers("/","/users").permitAll()
+               .antMatchers("/","/users", "user/login/**","/login*").permitAll()
                .antMatchers("/mypage").hasRole("USER")
                .antMatchers("/messages").hasRole("MANAGER")
                .antMatchers("/config").hasRole("ADMIN")
@@ -63,6 +65,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                .defaultSuccessUrl("/")
                .authenticationDetailsSource(authenticationDetailsSource)
                .successHandler(customAuthenticationSuccessHandler)
+               .failureHandler(customAuthenticationFailureHandler)
                .permitAll()
 
        ;
