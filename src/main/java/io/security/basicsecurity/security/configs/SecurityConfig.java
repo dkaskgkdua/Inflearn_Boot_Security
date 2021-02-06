@@ -1,6 +1,7 @@
 package io.security.basicsecurity.security.configs;
 
 import io.security.basicsecurity.security.common.FormWebAuthenticationDetailsSource;
+import io.security.basicsecurity.security.filter.AjaxLoginProcessingFilter;
 import io.security.basicsecurity.security.handler.CustomAccessDeniedHandler;
 import io.security.basicsecurity.security.provider.FormAuthenticationProvider;
 import lombok.RequiredArgsConstructor;
@@ -9,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.authentication.AuthenticationDetailsSource;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -21,6 +23,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @EnableWebSecurity
 @RequiredArgsConstructor
@@ -43,6 +46,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         //auth.userDetailsService(userDetailsService);
         auth.authenticationProvider(authenticationProvider());
     }
+
+    @Override
+    public AuthenticationManager authenticationManagerBean() throws Exception {
+        return super.authenticationManagerBean();
+    }
+
     // 커스텀한 provider 빈 등록
     @Bean
     public AuthenticationProvider authenticationProvider() {
@@ -73,11 +82,30 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
        .and()
                .exceptionHandling()
                .accessDeniedHandler(accessDeniedHandler())
+       .and()
+             // 실제 추가하고자 하는 필터가 기존 필터 앞에 위치할 때
+             //.addFilterBefore()
+             // 가장 맨 마지막에 위치할때
+             //.addFilter
+             // 지금 추가하고자 하는 필터가 기존 필터 뒤쪽에 위치할 때
+             //.addFilterAfter
+             //  현재 기존의 필터의 위치를 대체하고자 할때
+             //.addFilterAt
+               .addFilterBefore(ajaxLoginProcessingFilter(), UsernamePasswordAuthenticationFilter.class);
 
        ;
 
 
     }
+
+    @Bean
+    public AjaxLoginProcessingFilter ajaxLoginProcessingFilter() throws Exception {
+        AjaxLoginProcessingFilter ajaxLoginProcessingFilter = new AjaxLoginProcessingFilter();
+        ajaxLoginProcessingFilter.setAuthenticationManager(authenticationManagerBean());
+
+        return ajaxLoginProcessingFilter;
+    }
+
     @Bean
     public AccessDeniedHandler accessDeniedHandler() {
         CustomAccessDeniedHandler accessDeniedHandler = new CustomAccessDeniedHandler();
