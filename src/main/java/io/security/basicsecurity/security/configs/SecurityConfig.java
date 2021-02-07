@@ -9,6 +9,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -25,7 +27,8 @@ import org.springframework.security.web.authentication.AuthenticationFailureHand
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-@EnableWebSecurity
+@Configuration
+@Order(1)
 @RequiredArgsConstructor
 @Slf4j
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
@@ -34,6 +37,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private final FormWebAuthenticationDetailsSource authenticationDetailsSource;
     private final AuthenticationSuccessHandler customAuthenticationSuccessHandler;
     private final AuthenticationFailureHandler customAuthenticationFailureHandler;
+    private final PasswordEncoder passwordEncoder;
 
     // webIgnore 설정 - 정적 리소스 관리 : 보안필터도 안거침(비용적인 측면에서 절약)
     @Override
@@ -55,7 +59,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     // 커스텀한 provider 빈 등록
     @Bean
     public AuthenticationProvider authenticationProvider() {
-        return new FormAuthenticationProvider(userDetailsService, passwordEncoder());
+        return new FormAuthenticationProvider(userDetailsService, passwordEncoder);
     }
 
     @Override
@@ -82,29 +86,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
        .and()
                .exceptionHandling()
                .accessDeniedHandler(accessDeniedHandler())
-       .and()
-             // 실제 추가하고자 하는 필터가 기존 필터 앞에 위치할 때
-             //.addFilterBefore()
-             // 가장 맨 마지막에 위치할때
-             //.addFilter
-             // 지금 추가하고자 하는 필터가 기존 필터 뒤쪽에 위치할 때
-             //.addFilterAfter
-             //  현재 기존의 필터의 위치를 대체하고자 할때
-             //.addFilterAt
-               .addFilterBefore(ajaxLoginProcessingFilter(), UsernamePasswordAuthenticationFilter.class);
+
 
        ;
 
 
     }
 
-    @Bean
-    public AjaxLoginProcessingFilter ajaxLoginProcessingFilter() throws Exception {
-        AjaxLoginProcessingFilter ajaxLoginProcessingFilter = new AjaxLoginProcessingFilter();
-        ajaxLoginProcessingFilter.setAuthenticationManager(authenticationManagerBean());
 
-        return ajaxLoginProcessingFilter;
-    }
 
     @Bean
     public AccessDeniedHandler accessDeniedHandler() {
@@ -112,12 +101,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         accessDeniedHandler.setErrorPage("/denied");
 
         return accessDeniedHandler;
-    }
-
-
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return PasswordEncoderFactories.createDelegatingPasswordEncoder();
     }
 
 
