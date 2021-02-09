@@ -55,8 +55,8 @@ public class AjaxSecurityConfig extends WebSecurityConfigurerAdapter {
                 //.addFilterAfter
                 //  현재 기존의 필터의 위치를 대체하고자 할때
                 //.addFilterAt
-                .addFilterBefore(ajaxLoginProcessingFilter(), UsernamePasswordAuthenticationFilter.class);
-        http
+                // ** 커스텀 dsl로 주석
+                //.addFilterBefore(ajaxLoginProcessingFilter(), UsernamePasswordAuthenticationFilter.class);
                 .exceptionHandling()
                 .authenticationEntryPoint(new AjaxLoginAuthenticationEntryPoint())
                 .accessDeniedHandler(ajaxAccessDeniedHandler())
@@ -64,6 +64,23 @@ public class AjaxSecurityConfig extends WebSecurityConfigurerAdapter {
 
         ;
 
+        customConfigurerAjax(http);
+
+    }
+
+    /**
+     * 커스텀 DSL로 설정
+     * @param http
+     * @throws Exception
+     */
+    private void customConfigurerAjax(HttpSecurity http) throws Exception {
+        http
+                .apply(new AjaxLoginConfigurer<>())
+                .successHandlerAjax(ajaxAuthenticationSuccessHandler())
+                .failureHandlerAjax(ajaxAuthenticationFailureHandler())
+                .setAuthenticationManager(authenticationManagerBean())
+                .loginProcessingUrl("/api/login")
+                ;
     }
 
     @Bean
@@ -71,16 +88,16 @@ public class AjaxSecurityConfig extends WebSecurityConfigurerAdapter {
         return new AjaxAccessDeniedHandler();
     }
 
-
-    @Bean
-    public AjaxLoginProcessingFilter ajaxLoginProcessingFilter() throws Exception {
-        AjaxLoginProcessingFilter ajaxLoginProcessingFilter = new AjaxLoginProcessingFilter();
-        ajaxLoginProcessingFilter.setAuthenticationManager(authenticationManagerBean());
-        ajaxLoginProcessingFilter.setAuthenticationSuccessHandler(ajaxAuthenticationSuccessHandler());
-        ajaxLoginProcessingFilter.setAuthenticationFailureHandler(ajaxAuthenticationFailureHandler());
-
-        return ajaxLoginProcessingFilter;
-    }
+//    custom dsl로 주석처리
+//    @Bean
+//    public AjaxLoginProcessingFilter ajaxLoginProcessingFilter() throws Exception {
+//        AjaxLoginProcessingFilter ajaxLoginProcessingFilter = new AjaxLoginProcessingFilter();
+//        ajaxLoginProcessingFilter.setAuthenticationManager(authenticationManagerBean());
+//        ajaxLoginProcessingFilter.setAuthenticationSuccessHandler(ajaxAuthenticationSuccessHandler());
+//        ajaxLoginProcessingFilter.setAuthenticationFailureHandler(ajaxAuthenticationFailureHandler());
+//
+//        return ajaxLoginProcessingFilter;
+//    }
     /**
      *  form 방식은 @Component 로 핸들러를 빈으로 등록했고
      *  rest 방식은 @bean 으로 핸들러를 빈으로 등록함.
