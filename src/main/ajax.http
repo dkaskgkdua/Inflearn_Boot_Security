@@ -4,8 +4,8 @@ Content-Type: application/json
 X-Requested-With: XMLHttpRequest
 
 {
-  "username": "user",
-  "password": "1111"
+  "username": "admin",
+  "password": "pass"
 }
 
 ### Send POST request with body as parameters
@@ -27,5 +27,11 @@ X-Requested-With: XMLHttpRequest
 ###
 ### Send POST request with body as parameters
 GET http://localhost:8082/api/messages
+Content-Type: application/json
+X-Requested-With: XMLHttpRequest
+
+###
+### Send POST request with body as parameters
+GET http://localhost:8082/api/test
 Content-Type: application/json
 X-Requested-With: XMLHttpRequest

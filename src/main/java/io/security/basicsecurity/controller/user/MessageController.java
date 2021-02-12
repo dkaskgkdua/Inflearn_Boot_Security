@@ -16,4 +16,10 @@ public class MessageController {
     public String apimessage() {
         return "messages ok";
     }
+
+    @GetMapping("/api/test")
+    @ResponseBody
+    public String apiTest() {
+        return "test ok";
+    }
 }

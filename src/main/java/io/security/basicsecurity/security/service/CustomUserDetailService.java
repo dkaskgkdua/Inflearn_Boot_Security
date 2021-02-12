@@ -1,7 +1,8 @@
 package io.security.basicsecurity.security.service;
 
-import io.security.basicsecurity.domain.Account;
+import io.security.basicsecurity.domain.entity.Account;
 import io.security.basicsecurity.repository.UserRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -10,31 +11,36 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
-/**
- * userDetailsService를 커스텀함
- */
-@Service("UserDetailsService")
+@Slf4j
+@Service("userDetailsService")
 public class CustomUserDetailService implements UserDetailsService {
+
     @Autowired
     private UserRepository userRepository;
 
-    @Override
+//    @Autowired
+//    private HttpServletRequest request;
+
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+
         Account account = userRepository.findByUsername(username);
-
-        if(account == null) {
-            throw new UsernameNotFoundException("UsernameNotFoundException");
+        if (account == null) {
+            if (userRepository.countByUsername(username) == 0) {
+                throw new UsernameNotFoundException("No user found with username: " + username);
+            }
         }
-        // 권한 정보
-        List<GrantedAuthority> roles = new ArrayList<>();
-        roles.add(new SimpleGrantedAuthority(account.getRole()));
+        List<GrantedAuthority> collect = account.getUserRoles()
+                .stream()
+                .map(userRole -> userRole.getRoleName())
+                .collect(Collectors.toSet())
+                .stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList());
 
-        // AccountContext는 UserDetails -> User 상속을 받음음
-        AccountContext accountContext = new AccountContext(account, roles);
-
-        return accountContext;
+        //List<GrantedAuthority> collect = userRoles.stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList());
+        return new AccountContext(account, collect);
     }
 }

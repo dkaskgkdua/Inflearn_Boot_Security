@@ -7,6 +7,7 @@ import io.security.basicsecurity.security.handler.AjaxAuthenticationFailureHandl
 import io.security.basicsecurity.security.handler.AjaxAuthenticationSuccessHandler;
 import io.security.basicsecurity.security.provider.AjaxAuthenticationProvider;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -26,6 +27,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 @Order(0)
 @RequiredArgsConstructor
+@Slf4j
 public class AjaxSecurityConfig extends WebSecurityConfigurerAdapter {
     private final UserDetailsService userDetailsService;
 
@@ -45,7 +47,7 @@ public class AjaxSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatcher("/api/**")
                 .authorizeRequests()
                 .antMatchers("/api/messages").hasRole("MANAGER")
-                .antMatchers("/api/login").permitAll()
+                .antMatchers("/api/login","/api/test").permitAll()
                 .anyRequest().authenticated()
         .and()
                 // 실제 추가하고자 하는 필터가 기존 필터 앞에 위치할 때
