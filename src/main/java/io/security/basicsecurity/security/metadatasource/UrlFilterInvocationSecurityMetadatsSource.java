@@ -10,8 +10,17 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
 import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 
+/**
+ * url 기반 웹 인가처리
+ * 기존 config 에서 .antMatchers("/mypage").hasRole("USER") 를 사용하던 것을
+ * 별도로 분리해서 설정
+ * 기존 필터 앞에 필터를 둬서 먼저 처리를 하는데
+ * 시큐리티의 경우 먼저 처리를 한 경우 뒤에 필터가 추가로 처리를 안함
+ * -> FilterSecurityInterceptor
+ * 즉 위에 기존 config 설정한 matchers 가 무용지물(?)이 됨
+ */
 public class UrlFilterInvocationSecurityMetadatsSource implements FilterInvocationSecurityMetadataSource {
-
+    // map<url ,권한정보 리스트> 형태
     private LinkedHashMap<RequestMatcher, List<ConfigAttribute>> requestMap = new LinkedHashMap<>();
 
     @Override

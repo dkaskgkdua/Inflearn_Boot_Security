@@ -75,7 +75,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
        http
-               //.csrf().disable()
+               .csrf().disable()
                .authorizeRequests()
                .antMatchers("/","/users", "user/login/**","/login*").permitAll()
                .antMatchers("/mypage").hasRole("USER")
@@ -96,8 +96,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
        .and()
                .exceptionHandling()
                .accessDeniedHandler(accessDeniedHandler())
-//        .and()
-//                .addFilterBefore(customFilterSecurityInterceptor(), FilterSecurityInterceptor.class)
+        .and()
+                .addFilterBefore(customFilterSecurityInterceptor(), FilterSecurityInterceptor.class)
 
        ;
 
@@ -113,6 +113,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
         return accessDeniedHandler;
     }
+
+    /**
+     * 필터 셋팅
+     *
+     */
     @Bean
     public FilterSecurityInterceptor customFilterSecurityInterceptor() throws Exception {
 
@@ -123,6 +128,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         return filterSecurityInterceptor;
     }
 
+    /**
+     * 등록된 voter 클래스 객체 중 단 하나라도 접근 허가로 결론을 내면 최종적으로 접근 허가
+     *
+     * 그 외
+     * - UnanimousBased : 만장일치
+     * - ConsensusBased : 다수결
+     */
     private AccessDecisionManager affirmativeBased() {
         AffirmativeBased affirmativeBased = new AffirmativeBased(getAccessDecistionVoters());
         return affirmativeBased;
