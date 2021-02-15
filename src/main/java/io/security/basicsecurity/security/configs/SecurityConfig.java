@@ -1,10 +1,12 @@
 package io.security.basicsecurity.security.configs;
 
 import io.security.basicsecurity.security.common.FormWebAuthenticationDetailsSource;
+import io.security.basicsecurity.security.factory.UrlResourcesMapFactoryBean;
 import io.security.basicsecurity.security.filter.AjaxLoginProcessingFilter;
 import io.security.basicsecurity.security.handler.CustomAccessDeniedHandler;
 import io.security.basicsecurity.security.metadatasource.UrlFilterInvocationSecurityMetadatsSource;
 import io.security.basicsecurity.security.provider.FormAuthenticationProvider;
+import io.security.basicsecurity.service.SecurityResourceService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +38,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.ResourceBundle;
 
 @Configuration
 @Order(1)
@@ -44,6 +47,7 @@ import java.util.List;
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final UserDetailsService userDetailsService;
+    private final SecurityResourceService securityResourceService;
     private final FormWebAuthenticationDetailsSource authenticationDetailsSource;
     private final AuthenticationSuccessHandler customAuthenticationSuccessHandler;
     private final AuthenticationFailureHandler customAuthenticationFailureHandler;
@@ -145,8 +149,15 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
-    public FilterInvocationSecurityMetadataSource urlFilterInvocationSecurityMetadataSource() {
-        return new UrlFilterInvocationSecurityMetadatsSource();
+    public FilterInvocationSecurityMetadataSource urlFilterInvocationSecurityMetadataSource() throws Exception {
+        return new UrlFilterInvocationSecurityMetadatsSource(urlResourcesMapFactoryBean().getObject());
+    }
+
+    private UrlResourcesMapFactoryBean urlResourcesMapFactoryBean() {
+        UrlResourcesMapFactoryBean urlResourcesMapFactoryBean = new UrlResourcesMapFactoryBean();
+        urlResourcesMapFactoryBean.setSecurityResourceService(securityResourceService);
+
+        return urlResourcesMapFactoryBean;
     }
 
     // 메모리에 임의 유저정보 - 테스트용

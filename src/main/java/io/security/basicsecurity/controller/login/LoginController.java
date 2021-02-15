@@ -25,8 +25,8 @@ public class LoginController {
         model.addAttribute("error", error);
         model.addAttribute("exception", exception);
 
-        //return "user/login/login";
-        return "login";
+        return "user/login/login";
+        //return "login";
     }
     @GetMapping("/logout")
     public String logout(HttpServletRequest request, HttpServletResponse response) {
