@@ -3,6 +3,7 @@ package io.security.basicsecurity.security.configs;
 import io.security.basicsecurity.security.common.FormWebAuthenticationDetailsSource;
 import io.security.basicsecurity.security.factory.UrlResourcesMapFactoryBean;
 import io.security.basicsecurity.security.filter.AjaxLoginProcessingFilter;
+import io.security.basicsecurity.security.filter.PermitAllFilter;
 import io.security.basicsecurity.security.handler.CustomAccessDeniedHandler;
 import io.security.basicsecurity.security.metadatasource.UrlFilterInvocationSecurityMetadatsSource;
 import io.security.basicsecurity.security.provider.FormAuthenticationProvider;
@@ -53,6 +54,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private final AuthenticationFailureHandler customAuthenticationFailureHandler;
     private final PasswordEncoder passwordEncoder;
 
+    private String[] permitAllResources = {"/", "/login", "/user/login/**","/test"};
+
     // webIgnore 설정 - 정적 리소스 관리 : 보안필터도 안거침(비용적인 측면에서 절약)
     @Override
     public void configure(WebSecurity web) throws Exception {
@@ -81,10 +84,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
        http
                .csrf().disable()
                .authorizeRequests()
-               .antMatchers("/","/users", "user/login/**","/login*").permitAll()
-               .antMatchers("/mypage").hasRole("USER")
-               .antMatchers("/messages").hasRole("MANAGER")
-               .antMatchers("/config").hasRole("ADMIN")
+//         필터에서 세팅완료
+//               .antMatchers("/","/users", "user/login/**","/login*").permitAll()
+//               .antMatchers("/mypage").hasRole("USER")
+//               .antMatchers("/messages").hasRole("MANAGER")
+//               .antMatchers("/config").hasRole("ADMIN")
 
                .anyRequest().authenticated()
 
@@ -123,13 +127,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
      *
      */
     @Bean
-    public FilterSecurityInterceptor customFilterSecurityInterceptor() throws Exception {
+    public PermitAllFilter customFilterSecurityInterceptor() throws Exception {
 
-        FilterSecurityInterceptor filterSecurityInterceptor = new FilterSecurityInterceptor();
-        filterSecurityInterceptor.setSecurityMetadataSource(urlFilterInvocationSecurityMetadataSource());
-        filterSecurityInterceptor.setAccessDecisionManager(affirmativeBased());
-        filterSecurityInterceptor.setAuthenticationManager(authenticationManagerBean());
-        return filterSecurityInterceptor;
+        PermitAllFilter permitAllFilter = new PermitAllFilter(permitAllResources);
+        permitAllFilter.setSecurityMetadataSource(urlFilterInvocationSecurityMetadataSource());
+        permitAllFilter.setAccessDecisionManager(affirmativeBased());
+        permitAllFilter.setAuthenticationManager(authenticationManagerBean());
+        return permitAllFilter;
     }
 
     /**
