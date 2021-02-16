@@ -4,6 +4,7 @@ import io.security.basicsecurity.domain.dto.ResourcesDto;
 import io.security.basicsecurity.domain.entity.Resources;
 import io.security.basicsecurity.domain.entity.Role;
 import io.security.basicsecurity.repository.RoleRepository;
+import io.security.basicsecurity.security.metadatasource.UrlFilterInvocationSecurityMetadatsSource;
 import io.security.basicsecurity.service.ResourcesService;
 import io.security.basicsecurity.service.RoleService;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +27,7 @@ public class ResourcesController {
     private final ResourcesService resourcesService;
     private final RoleRepository roleRepository;
     private final RoleService roleService;
+    private final UrlFilterInvocationSecurityMetadatsSource urlFilterInvocationSecurityMetadataSource;
 
     @GetMapping(value="/admin/resources")
     public String getResources(Model model) throws Exception {
@@ -47,6 +49,8 @@ public class ResourcesController {
         resources.setRoleSet(roles);
 
         resourcesService.createResources(resources);
+        // 리소스 정보 실시간 반영되게
+        urlFilterInvocationSecurityMetadataSource.reload();
 
         return "redirect:/admin/resources";
     }
@@ -85,6 +89,7 @@ public class ResourcesController {
 
         Resources resources = resourcesService.getResources(Long.valueOf(id));
         resourcesService.deleteResources(Long.valueOf(id));
+        urlFilterInvocationSecurityMetadataSource.reload();
 
         return "redirect:/admin/resources";
     }

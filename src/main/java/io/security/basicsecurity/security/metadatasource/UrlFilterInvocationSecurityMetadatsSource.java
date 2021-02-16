@@ -1,5 +1,7 @@
 package io.security.basicsecurity.security.metadatasource;
 
+import io.security.basicsecurity.service.SecurityResourceService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.access.SecurityConfig;
 import org.springframework.security.web.FilterInvocation;
@@ -19,12 +21,17 @@ import java.util.*;
  * -> FilterSecurityInterceptor
  * 즉 위에 기존 config 설정한 matchers 가 무용지물(?)이 됨
  */
+@Slf4j
 public class UrlFilterInvocationSecurityMetadatsSource implements FilterInvocationSecurityMetadataSource {
     // map<url ,권한정보 리스트> 형태
     private LinkedHashMap<RequestMatcher, List<ConfigAttribute>> requestMap;
 
-    public UrlFilterInvocationSecurityMetadatsSource(LinkedHashMap<RequestMatcher, List<ConfigAttribute>> requestMap) {
+    private SecurityResourceService securityResourceService;
+
+    public UrlFilterInvocationSecurityMetadatsSource(LinkedHashMap<RequestMatcher, List<ConfigAttribute>> requestMap
+                        , SecurityResourceService securityResourceService) {
         this.requestMap = requestMap;
+        this.securityResourceService = securityResourceService;
     }
 
     @Override
@@ -61,5 +68,20 @@ public class UrlFilterInvocationSecurityMetadatsSource implements FilterInvocati
     @Override
     public boolean supports(Class<?> clazz) {
         return FilterInvocation.class.isAssignableFrom(clazz);
+    }
+
+    /**
+     * db에 있는 정보가 실시간으로 반영되게 reload 메서드 생성
+     */
+    public void reload() {
+        LinkedHashMap<RequestMatcher, List<ConfigAttribute>> reloadedMap = securityResourceService.getResourceList();
+        Iterator<Map.Entry<RequestMatcher, List<ConfigAttribute>>> iterator = reloadedMap.entrySet().iterator();
+
+        requestMap.clear();
+
+        while(iterator.hasNext()) {
+            Map.Entry<RequestMatcher, List<ConfigAttribute>> entry = iterator.next();
+            requestMap.put(entry.getKey(), entry.getValue());
+        }
     }
 }
