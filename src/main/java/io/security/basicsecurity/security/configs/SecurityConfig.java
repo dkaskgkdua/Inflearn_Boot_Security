@@ -7,6 +7,7 @@ import io.security.basicsecurity.security.filter.PermitAllFilter;
 import io.security.basicsecurity.security.handler.CustomAccessDeniedHandler;
 import io.security.basicsecurity.security.metadatasource.UrlFilterInvocationSecurityMetadatsSource;
 import io.security.basicsecurity.security.provider.FormAuthenticationProvider;
+import io.security.basicsecurity.security.voter.IpAddressVoter;
 import io.security.basicsecurity.service.SecurityResourceService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -154,7 +155,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     private List<AccessDecisionVoter<?>> getAccessDecistionVoters() {
         List<AccessDecisionVoter<? extends Object>> accessDecisionVoters = new ArrayList<>();
+        // 다른 voter 보다 ip voter를 먼저 오게 해야함!(먼저 심의)
+        accessDecisionVoters.add(new IpAddressVoter(securityResourceService));
         accessDecisionVoters.add(roleVoter());
+
 
         return accessDecisionVoters;
     }
