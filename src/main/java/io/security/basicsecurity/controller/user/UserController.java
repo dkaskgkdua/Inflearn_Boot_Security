@@ -5,10 +5,14 @@ import io.security.basicsecurity.domain.dto.AccountDto;
 import io.security.basicsecurity.service.UserService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+
+import java.security.Principal;
 
 @Controller
 public class UserController {
@@ -20,7 +24,7 @@ public class UserController {
     private PasswordEncoder passwordEncoder;
 
     @GetMapping(value="/mypage")
-    public String myPage() throws Exception {
+    public String myPage(@AuthenticationPrincipal Account account, Authentication authentication, Principal principal) throws Exception {
         return "user/mypage";
     }
 
@@ -37,5 +41,11 @@ public class UserController {
         userService.createUser(account);
 
         return "redirect:/";
+    }
+
+    @GetMapping("/order")
+    public String order(){
+        userService.order();
+        return "user/mypage";
     }
 }
