@@ -32,8 +32,8 @@ public class SecurityResourceService {
             // resource 하나당 여러개의 권한정보가 매핑 됨. 1대 다
             re.getRoleSet().forEach(role -> {
                 configAttributeList.add(new SecurityConfig(role.getRoleName()));
-                result.put(new AntPathRequestMatcher(re.getResourceName()), configAttributeList);
             });
+            result.put(new AntPathRequestMatcher(re.getResourceName()), configAttributeList);
         });
 
         return result;
@@ -45,5 +45,22 @@ public class SecurityResourceService {
                 .collect(Collectors.toList());
 
         return accessIpList;
+    }
+
+    public LinkedHashMap<String, List<ConfigAttribute>> getMethodResourceList() {
+        LinkedHashMap<String, List<ConfigAttribute>> result = new LinkedHashMap<>();
+        List<Resources> resourcesList = resourcesRepository.findAllMethodResources();
+
+        // db에 있는 모든 자원정보를 가지고 와서 for
+        resourcesList.forEach(re -> {
+            List<ConfigAttribute> configAttributeList = new ArrayList<>();
+            // resource 하나당 여러개의 권한정보가 매핑 됨. 1대 다
+            re.getRoleSet().forEach(role -> {
+                configAttributeList.add(new SecurityConfig(role.getRoleName()));
+            });
+            result.put(re.getResourceName(), configAttributeList);
+        });
+
+        return result;
     }
 }
