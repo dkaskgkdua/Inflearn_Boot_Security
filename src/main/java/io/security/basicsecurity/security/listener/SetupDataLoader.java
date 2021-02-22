@@ -2,6 +2,7 @@ package io.security.basicsecurity.security.listener;
 
 import io.security.basicsecurity.domain.entity.*;
 import io.security.basicsecurity.repository.*;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
@@ -14,27 +15,16 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Component
+@RequiredArgsConstructor
 public class SetupDataLoader implements ApplicationListener<ContextRefreshedEvent> {
-
     private boolean alreadySetup = false;
 
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private RoleRepository roleRepository;
-
-    @Autowired
-    private ResourcesRepository resourcesRepository;
-
-    @Autowired
-    private AccessIpRepository accessIpRepository;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    @Autowired
-    private RoleHierarchyRepository roleHierarchyRepository;
+    private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
+    private final ResourcesRepository resourcesRepository;
+    private final AccessIpRepository accessIpRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final RoleHierarchyRepository roleHierarchyRepository;
 
     private static AtomicInteger count = new AtomicInteger(0);
 
@@ -53,35 +43,43 @@ public class SetupDataLoader implements ApplicationListener<ContextRefreshedEven
     }
 
 
-
+    // 권한 및 인가 정보 초기 세팅
     private void setupSecurityResources() {
-        Set<Role> roles = new HashSet<>();
+        // Role 추가
         Role adminRole = createRoleIfNotFound("ROLE_ADMIN", "관리자");
         Role managerRole = createRoleIfNotFound("ROLE_MANAGER", "매니저");
         Role userRole = createRoleIfNotFound("ROLE_USER", "사용자");
-        roles.add(adminRole);
-        createResourceIfNotFound("/admin/**", "", roles, "url");
-        Account account = createUserIfNotFound("admin", "1111", "admin@gmail.com", 10,  roles);
 
+        // 인가 정보(관리자) - url
+        Set<Role> adminRoleSet = new HashSet<>();
+        adminRoleSet.add(adminRole);
+        createResourceIfNotFound("/admin/**", "", adminRoleSet, "url");
+
+        // 인가 정보(유저) - 메소드
+        Set<Role> userRoleSet = new HashSet<>();
+        userRoleSet.add(userRole);
+        createResourceIfNotFound("io.security.basicsecurity.aopsecurity.AopMethodService.methodSecured", "", userRoleSet, "method");
+
+        // 인가 정보(매니저) - 메소드
+        Set<Role> managerRoleSet = new HashSet<>();
+        managerRoleSet.add(managerRole);
+        createResourceIfNotFound("io.security.basicsecurity.aopsecurity.AopMethodService.methodSecuredManager", "", managerRoleSet, "method");
+
+        // 유저 추가(초기)
+        Account adminAccount = createUserIfNotFound("admin", "1111", "admin@gmail.com", 10,  adminRoleSet);
+        Account managerAccount = createUserIfNotFound("manager", "1111", "manager@gmail.com", 10,  managerRoleSet);
+        Account userAccount = createUserIfNotFound("user", "1111", "user@gmail.com", 10,  userRoleSet);
+
+        // 권한 계층 구조 적용( admin > manager > user)
         createRoleHierarchyIfNotFound(managerRole, adminRole);
         createRoleHierarchyIfNotFound(userRole, managerRole);
 
 
-//        Set<Role> roles1 = new HashSet<>();
-//
-//        Role managerRole = createRoleIfNotFound("ROLE_MANAGER", "매니저");
-//        roles1.add(managerRole);
-//        createResourceIfNotFound("io.security.corespringsecurity.aopsecurity.method.AopMethodService.methodTest", "", roles1, "method");
-//        createResourceIfNotFound("io.security.corespringsecurity.aopsecurity.method.AopMethodService.innerCallMethodTest", "", roles1, "method");
-//        createResourceIfNotFound("execution(* io.security.corespringsecurity.aopsecurity.pointcut.*Service.*(..))", "", roles1, "pointcut");
+
+        //createResourceIfNotFound("execution(* io.security.corespringsecurity.aopsecurity.pointcut.*Service.*(..))", "", roles1, "pointcut");
 //        createUserIfNotFound("manager", "pass", "manager@gmail.com", 20, roles1);
 //
-//        Set<Role> roles3 = new HashSet<>();
-//
-//        Role childRole1 = createRoleIfNotFound("ROLE_USER", "회원");
-//        roles3.add(childRole1);
 //        createResourceIfNotFound("/users/**", "", roles3, "url");
-//        createUserIfNotFound("user", "pass", "user@gmail.com", 30, roles3);
 
     }
 
