@@ -13,6 +13,7 @@ import java.security.Principal;
 @RequiredArgsConstructor
 public class AopSecurityController {
     private final AopMethodService aopMethodService;
+    private final AopLiveMethodService aopLiveMethodService;
     private final AopPointcutService aopPointcutService;
 
     @GetMapping("/preAuthorize")
@@ -53,6 +54,13 @@ public class AopSecurityController {
         return "aop/method";
     }
 
+    @GetMapping("/liveMethodSecured")
+    public String liveMethodSecured(Model model) {
+        aopLiveMethodService.liveMethodSecured();
+        model.addAttribute("method", "Success liveMethodSecured");
+
+        return "aop/method";
+    }
 
     
 }

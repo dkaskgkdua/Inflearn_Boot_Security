@@ -75,9 +75,11 @@ public class SetupDataLoader implements ApplicationListener<ContextRefreshedEven
         createRoleHierarchyIfNotFound(userRole, managerRole);
 
 
-
+        // 포인트컷 기반 메서드 인가처리
         createResourceIfNotFound("execution(* io.security.basicsecurity.aopsecurity.*Service.pointcut*(..))", "", managerRoleSet, "pointcut");
 
+        // 실시간 메서드 기반 인가처리 업데이트
+        createResourceIfNotFound("io.security.basicsecurity.aopsecurity.AopLiveMethodService.liveMethodSecured", "", managerRoleSet, "method");
     }
 
     @Transactional

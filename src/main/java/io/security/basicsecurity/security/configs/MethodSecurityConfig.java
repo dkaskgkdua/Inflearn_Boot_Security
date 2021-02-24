@@ -1,6 +1,7 @@
 package io.security.basicsecurity.security.configs;
 
 import io.security.basicsecurity.security.factory.MethodResourcesFactoryBean;
+import io.security.basicsecurity.security.interceptor.CustomMethodSecurityInterceptor;
 import io.security.basicsecurity.security.processor.ProtectPointcutPostProcessor;
 import io.security.basicsecurity.service.SecurityResourceService;
 import lombok.RequiredArgsConstructor;
@@ -61,19 +62,19 @@ public class MethodSecurityConfig extends GlobalMethodSecurityConfiguration{
         return protectPointcutPostProcessor;
     }
 
-//    @Bean
-//    public CustomMethodSecurityInterceptor customMethodSecurityInterceptor(MapBasedMethodSecurityMetadataSource methodSecurityMetadataSource) {
-//        CustomMethodSecurityInterceptor customMethodSecurityInterceptor =  new CustomMethodSecurityInterceptor();
-//        customMethodSecurityInterceptor.setAccessDecisionManager(accessDecisionManager());
-//        customMethodSecurityInterceptor.setAfterInvocationManager(afterInvocationManager());
-//        customMethodSecurityInterceptor.setSecurityMetadataSource(methodSecurityMetadataSource);
-//        RunAsManager runAsManager = runAsManager();
-//        if (runAsManager != null) {
-//            customMethodSecurityInterceptor.setRunAsManager(runAsManager);
-//        }
-//
-//        return customMethodSecurityInterceptor;
-//    }
+    @Bean
+    public CustomMethodSecurityInterceptor customMethodSecurityInterceptor(MapBasedMethodSecurityMetadataSource methodSecurityMetadataSource) {
+        CustomMethodSecurityInterceptor customMethodSecurityInterceptor =  new CustomMethodSecurityInterceptor();
+        customMethodSecurityInterceptor.setAccessDecisionManager(accessDecisionManager());
+        customMethodSecurityInterceptor.setAfterInvocationManager(afterInvocationManager());
+        customMethodSecurityInterceptor.setSecurityMetadataSource(methodSecurityMetadataSource);
+        RunAsManager runAsManager = runAsManager();
+        if (runAsManager != null) {
+            customMethodSecurityInterceptor.setRunAsManager(runAsManager);
+        }
+
+        return customMethodSecurityInterceptor;
+    }
 }
 /**
  * ProtectPointcutPostProcessor 클래스가 해당 패키지 내에서만 사용가능해서 리플렉션 방식으로 접근
