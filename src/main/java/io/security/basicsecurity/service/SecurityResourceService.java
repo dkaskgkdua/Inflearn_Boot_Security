@@ -63,4 +63,21 @@ public class SecurityResourceService {
 
         return result;
     }
+
+    public LinkedHashMap<String, List<ConfigAttribute>> getPointcutResourceList() {
+        LinkedHashMap<String, List<ConfigAttribute>> result = new LinkedHashMap<>();
+        List<Resources> resourcesList = resourcesRepository.findAllPointcutResources();
+
+        // db에 있는 모든 자원정보를 가지고 와서 for
+        resourcesList.forEach(re -> {
+            List<ConfigAttribute> configAttributeList = new ArrayList<>();
+            // resource 하나당 여러개의 권한정보가 매핑 됨. 1대 다
+            re.getRoleSet().forEach(role -> {
+                configAttributeList.add(new SecurityConfig(role.getRoleName()));
+            });
+            result.put(re.getResourceName(), configAttributeList);
+        });
+
+        return result;
+    }
 }

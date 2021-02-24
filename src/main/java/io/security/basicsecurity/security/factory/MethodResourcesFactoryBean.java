@@ -10,7 +10,13 @@ import java.util.List;
 
 public class MethodResourcesFactoryBean implements FactoryBean<LinkedHashMap<String, List<ConfigAttribute>>> {
     private SecurityResourceService securityResourceService;
-    private LinkedHashMap<String, List<ConfigAttribute>> resourceMap;
+    private LinkedHashMap<String, List<ConfigAttribute>> resourcesMap;
+
+    private String resourceType;
+
+    public void setResourceType(String resourceType) {
+        this.resourceType = resourceType;
+    }
 
     public void setSecurityResourceService(SecurityResourceService securityResourceService) {
         this.securityResourceService = securityResourceService;
@@ -19,20 +25,26 @@ public class MethodResourcesFactoryBean implements FactoryBean<LinkedHashMap<Str
     @Override
     public LinkedHashMap<String, List<ConfigAttribute>> getObject() {
 
-        if(resourceMap == null) {
+        if(resourcesMap == null) {
             init();
         }
-        return resourceMap;
+        return resourcesMap;
     }
 
     private void init() {
-        resourceMap = securityResourceService.getMethodResourceList();
+        if ("method".equals(resourceType)) {
+            resourcesMap = securityResourceService.getMethodResourceList();
+        }else if("pointcut".equals(resourceType)){
+            resourcesMap = securityResourceService.getPointcutResourceList();
+        }
     }
+
 
     @Override
     public Class<?> getObjectType() {
         return LinkedHashMap.class;
     }
+
     // 싱글톤 적용. 메모리에 하나만.
     @Override
     public boolean isSingleton() {

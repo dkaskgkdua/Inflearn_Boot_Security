@@ -13,7 +13,8 @@ import java.security.Principal;
 @RequiredArgsConstructor
 public class AopSecurityController {
     private final AopMethodService aopMethodService;
-    
+    private final AopPointcutService aopPointcutService;
+
     @GetMapping("/preAuthorize")
     @PreAuthorize("hasRole('ROLE_USER') and #accountDto.username == principal.username")
     public String preAuthorize(AccountDto accountDto, Model model, Principal principal) {
@@ -33,6 +34,21 @@ public class AopSecurityController {
     public String methodSecuredManager(Model model) {
         aopMethodService.methodSecuredManager();
         model.addAttribute("method", "Success methodSecuredManager");
+
+        return "aop/method";
+    }
+
+    @GetMapping("/pointcutNotSecured")
+    public String pointcutNotSecured(Model model) {
+        aopPointcutService.notSecured();
+        model.addAttribute("pointcut", "Success PointcutNotSecured");
+
+        return "aop/method";
+    }
+    @GetMapping("/pointcutSecured")
+    public String pointcutSecured(Model model) {
+        aopPointcutService.pointcutSecured();
+        model.addAttribute("pointcut", "Success PointcutSecured");
 
         return "aop/method";
     }

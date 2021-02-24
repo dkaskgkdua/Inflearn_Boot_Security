@@ -76,10 +76,7 @@ public class SetupDataLoader implements ApplicationListener<ContextRefreshedEven
 
 
 
-        //createResourceIfNotFound("execution(* io.security.corespringsecurity.aopsecurity.pointcut.*Service.*(..))", "", roles1, "pointcut");
-//        createUserIfNotFound("manager", "pass", "manager@gmail.com", 20, roles1);
-//
-//        createResourceIfNotFound("/users/**", "", roles3, "url");
+        createResourceIfNotFound("execution(* io.security.basicsecurity.aopsecurity.*Service.pointcut*(..))", "", managerRoleSet, "pointcut");
 
     }
 
