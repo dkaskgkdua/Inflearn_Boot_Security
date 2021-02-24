@@ -44,7 +44,7 @@ public class MethodSecurityConfig extends GlobalMethodSecurityConfiguration{
     }
 
     @Bean
-    @Profile("pointcut")
+    //@Profile("pointcut")
     public MethodResourcesFactoryBean pointcutResourcesMapFactoryBean() {
         MethodResourcesFactoryBean methodResourcesMapFactoryBean = new MethodResourcesFactoryBean();
         methodResourcesMapFactoryBean.setSecurityResourceService(securityResourceService);
@@ -54,7 +54,7 @@ public class MethodSecurityConfig extends GlobalMethodSecurityConfiguration{
 
 
     @Bean
-    @Profile("pointcut")
+    //@Profile("pointcut")
     public ProtectPointcutPostProcessor protectPointcutPostProcessor(){
         ProtectPointcutPostProcessor protectPointcutPostProcessor = new ProtectPointcutPostProcessor(mapBasedMethodSecurityMetadataSource());
         protectPointcutPostProcessor.setPointcutMap(pointcutResourcesMapFactoryBean().getObject());
