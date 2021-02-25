@@ -1,0 +1,2 @@
+GET http://localhost:8082/v1/api/hello
+Accept: application/json

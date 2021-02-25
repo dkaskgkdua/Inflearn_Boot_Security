@@ -1,5 +1,6 @@
 package io.security.basicsecurity.domain.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import javax.persistence.*;
@@ -20,7 +21,7 @@ public class Account implements Serializable {
     @GeneratedValue
     private Long id;
 
-    @Column
+    @Column(unique = true)
     private String username;
 
     @Column
@@ -29,11 +30,18 @@ public class Account implements Serializable {
     @Column
     private int age;
 
+    @JsonIgnore
     @Column
     private String password;
 
+    @JsonIgnore
+    @Column(name = "activated")
+    private boolean activated;
+
     @ManyToMany(fetch = FetchType.LAZY, cascade={CascadeType.ALL})
-    @JoinTable(name = "account_roles", joinColumns = { @JoinColumn(name = "account_id") }, inverseJoinColumns = {
-            @JoinColumn(name = "role_id") })
+    @JoinTable(
+            name = "account_roles",
+            joinColumns = { @JoinColumn(name = "account_id") },
+            inverseJoinColumns = {@JoinColumn(name = "role_id") })
     private Set<Role> userRoles = new HashSet<>();
 }
