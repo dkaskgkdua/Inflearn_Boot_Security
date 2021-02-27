@@ -53,14 +53,14 @@ public class MethodSecurityConfig extends GlobalMethodSecurityConfiguration{
         return methodResourcesMapFactoryBean;
     }
 
-
-    @Bean
-    //@Profile("pointcut")
-    public ProtectPointcutPostProcessor protectPointcutPostProcessor(){
-        ProtectPointcutPostProcessor protectPointcutPostProcessor = new ProtectPointcutPostProcessor(mapBasedMethodSecurityMetadataSource());
-        protectPointcutPostProcessor.setPointcutMap(pointcutResourcesMapFactoryBean().getObject());
-        return protectPointcutPostProcessor;
-    }
+//    최초 빌드 시 기본데이터들이 있어야 함(최초 주석처리)
+//    @Bean
+//    //@Profile("pointcut")
+//    public ProtectPointcutPostProcessor protectPointcutPostProcessor(){
+//        ProtectPointcutPostProcessor protectPointcutPostProcessor = new ProtectPointcutPostProcessor(mapBasedMethodSecurityMetadataSource());
+//        protectPointcutPostProcessor.setPointcutMap(pointcutResourcesMapFactoryBean().getObject());
+//        return protectPointcutPostProcessor;
+//    }
 
     @Bean
     public CustomMethodSecurityInterceptor customMethodSecurityInterceptor(MapBasedMethodSecurityMetadataSource methodSecurityMetadataSource) {

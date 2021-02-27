@@ -108,6 +108,7 @@ public class SetupDataLoader implements ApplicationListener<ContextRefreshedEven
                     .age(age)
                     .password(passwordEncoder.encode(password))
                     .userRoles(roleSet)
+                    //.activated(false)
                     .build();
         }
         return userRepository.save(account);

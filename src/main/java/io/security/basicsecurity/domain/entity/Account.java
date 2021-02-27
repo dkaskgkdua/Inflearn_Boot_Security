@@ -35,10 +35,9 @@ public class Account implements Serializable {
     @Column
     private String password;
 
-//    @JsonIgnore
-//    @Column(name = "activated")
-//
-//    private boolean activated;
+    @JsonIgnore
+    @Column(name = "activated")
+    private boolean activated;
 
     @ManyToMany(fetch = FetchType.LAZY, cascade={CascadeType.ALL})
     @JoinTable(

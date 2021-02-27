@@ -11,7 +11,7 @@ public class JwtAdapter extends SecurityConfigurerAdapter<DefaultSecurityFilterC
 
     private JwtTokenProvider jwtTokenProvider;
 
-    public JwtAdapter(JwtTokenProvider jwttokenProvider) {
+    public JwtAdapter(JwtTokenProvider jwtTokenProvider) {
         this.jwtTokenProvider = jwtTokenProvider;
     }
 

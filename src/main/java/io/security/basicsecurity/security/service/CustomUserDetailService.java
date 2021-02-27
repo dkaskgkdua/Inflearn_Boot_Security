@@ -2,6 +2,7 @@ package io.security.basicsecurity.security.service;
 
 import io.security.basicsecurity.domain.entity.Account;
 import io.security.basicsecurity.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
@@ -18,10 +19,9 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service("userDetailsService")
+@RequiredArgsConstructor
 public class CustomUserDetailService implements UserDetailsService {
-
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
 //    @Autowired
 //    private HttpServletRequest request;
