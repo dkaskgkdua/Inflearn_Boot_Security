@@ -35,13 +35,14 @@ public class UserServiceImpl implements UserService {
 
     @Transactional
     @Override
-    public void createUser(Account account){
+    public Account createUser(Account account){
 
         Role role = roleRepository.findByRoleName("ROLE_USER");
         Set<Role> roles = new HashSet<>();
         roles.add(role);
         account.setUserRoles(roles);
-        userRepository.save(account);
+        Account result = userRepository.save(account);
+        return result;
     }
 
     @Transactional

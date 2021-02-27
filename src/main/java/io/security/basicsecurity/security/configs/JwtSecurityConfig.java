@@ -43,6 +43,7 @@ public class JwtSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/v1/api/hello").permitAll()
                 .antMatchers("/v1/api/authenticate").permitAll()
                 .antMatchers("/v1/api/signup").permitAll()
+                .antMatchers("/v1/api/account/**").hasRole("USER")
 
                 .anyRequest().authenticated()
         .and()

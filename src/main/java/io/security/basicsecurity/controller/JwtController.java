@@ -5,19 +5,26 @@ import io.security.basicsecurity.domain.dto.TokenDto;
 import io.security.basicsecurity.domain.entity.Account;
 import io.security.basicsecurity.security.filter.JwtFilter;
 import io.security.basicsecurity.security.provider.JwtTokenProvider;
+import io.security.basicsecurity.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.validation.Valid;
+import java.net.URI;
 
 @RestController
 @RequestMapping("/v1/api")
@@ -25,10 +32,37 @@ import javax.validation.Valid;
 public class JwtController {
     private final JwtTokenProvider jwtTokenProvider;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
+    private final UserService userService;
+    private final PasswordEncoder passwordEncoder;
+
 
     @GetMapping("/hello")
     public ResponseEntity<String> hello() {
         return ResponseEntity.ok("hello");
+    }
+
+    @GetMapping("/accounts/{id}")
+    public ResponseEntity<Account> retrieveAccount(@PathVariable Long id) {
+        AccountDto user = userService.getUser(id);
+        ModelMapper modelmapper = new ModelMapper();
+        Account account = modelmapper.map(user, Account.class);
+
+        return ResponseEntity.ok(account);
+    }
+
+    @PostMapping("/accounts")
+    public ResponseEntity<Account> signup(@Valid @RequestBody AccountDto accountDto) {
+        ModelMapper modelmapper = new ModelMapper();
+        Account account = modelmapper.map(accountDto, Account.class);
+        account.setPassword(passwordEncoder.encode(account.getPassword()));
+
+        URI location = ServletUriComponentsBuilder.fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(account.getId())
+                .toUri();
+
+        return ResponseEntity.created(location)
+                .build().ok(userService.createUser(account));
     }
 
     @PostMapping("/authenticate")
